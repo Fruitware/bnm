@@ -148,7 +148,7 @@ class Curs {
 		$result = $client->get( 'http://www.bnm.md/' . $this->_lang . '/official_exchange_rates', [
 			'query' => [ 'get_xml' => '1', 'date' => $date->format( 'd.m.Y' ) ]
 		] );
-		if ( $result->getStatusCode() == "200" ) {
+		if ( $result->getStatusCode() == 200 ) {
 			try {
 				return $result->xml();
 			}
@@ -156,7 +156,7 @@ class Curs {
 				throw new BnmException( 'Error loading xml' );
 			}
 		}
-		throw new BnmException( 'Error loading' );
+		throw new BnmException( 'Error loading. Code: '. $result->getStatusCode() );
 	}
 
 	/**
