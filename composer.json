@@ -1,0 +1,27 @@
+{
+    "name": "fruitware/bnm",
+    "type": "library",
+	"description": "Is a PHP library for bnm.md xml service",
+	"keywords": ["bnm", "bnm.md", "xml api"],
+	"homepage": "http://fruitware.ru/",
+    "license": "MIT",
+
+    "authors": [
+        {
+            "name": "Vladimir Scegoli",
+            "email": "marxx87@gmail.com",
+            "homepage": "https://github.com/sillywiz"
+        }
+    ],
+
+    "require": {
+        "php": ">=5.4.0",
+        "guzzlehttp/guzzle": "~4.0"
+    },
+
+	"autoload": {
+		"psr-4": {
+			"Fruitware\\Bnm\\": "src/"
+		}
+	}
+}
