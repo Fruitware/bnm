@@ -26,6 +26,7 @@ class Curs {
 	 * Load XML file with exchange rates by date from http://www.bnm.md/
 	 *
 	 * @param DateTime $date
+	 * @param string NULL $customPath
 	 * @param string $lang
 	 *
 	 * @throws Exception\BnmException
@@ -80,7 +81,7 @@ class Curs {
 	/**
 	 * Creating folder where we save XML file. Save XML currency array to object currency array
 	 *
-	 * @param bool $reload
+	 * @param string $customPath
 	 *
 	 * @throws BnmException
 	 */
@@ -131,6 +132,9 @@ class Curs {
 	 * @throws BnmException
 	 */
 	private function loadRates( DateTime $date ) {
+		/**
+		 * @var \GuzzleHttp\Client $client
+		 */
 		$client = new Client();
 		/**
 		 * @var \GuzzleHttp\Message\Response $result
