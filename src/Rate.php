@@ -63,17 +63,6 @@ class Rate {
 	}
 
 	/**
-	 * @call exchangeTo
-	 *
-	 * @param $quantity
-	 *
-	 * @return float
-	 */
-	public function exchange( $quantity ) {
-		return $this->exchangeTo( $quantity );
-	}
-
-	/**
 	 * Convert MDL to current currency
 	 *
 	 * @param $quantity string
