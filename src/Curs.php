@@ -39,16 +39,12 @@ class Curs {
 		$this->_lang = $lang;
 
 		$currDate = new DateTime();
-		if ( ! isset( $date ) ) {
-			$this->_date = $currDate;
-		} else if ( $date instanceof DateTime ) {
-			if ( $currDate < $date ) {
-				throw new BnmException( 'Max date must be current date' );
-			}
-			$this->_date = $date;
-		} else {
-			throw new BnmException( 'Date has an invalid format' );
+		if ($date === null || $date > $currDate) {
+			$date = $currDate;
 		}
+		
+		$this->_date = $date;
+		
 		$this->load();
 	}
 
@@ -152,7 +148,7 @@ class Curs {
 		$result = $client->get( 'http://www.bnm.md/' . $this->_lang . '/official_exchange_rates', [
 			'query' => [ 'get_xml' => '1', 'date' => $date->format( 'd.m.Y' ) ]
 		] );
-		if ( $result->getStatusCode() == "200" ) {
+		if ( $result->getStatusCode() == 200 ) {
 			try {
 				return $result->xml();
 			}
@@ -160,7 +156,7 @@ class Curs {
 				throw new BnmException( 'Error loading xml' );
 			}
 		}
-		throw new BnmException( 'Error loading' );
+		throw new BnmException( 'Error loading. Code: '. $result->getStatusCode() );
 	}
 
 	/**
