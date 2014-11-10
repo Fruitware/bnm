@@ -13,11 +13,6 @@ class Curs {
 	private $_date;
 
 	/**
-	 * @var string Folder name where we save XML files
-	 */
-	private $_folder = 'files';
-
-	/**
 	 * @var string
 	 */
 	private $_lang;
@@ -31,21 +26,22 @@ class Curs {
 	 * Load XML file with exchange rates by date from http://www.bnm.md/
 	 *
 	 * @param DateTime $date
+	 * @param string NULL $customPath
 	 * @param string $lang
 	 *
 	 * @throws Exception\BnmException
 	 */
-	public function __construct( DateTime $date = null, $lang = 'ru' ) {
+	public function __construct( DateTime $date = NULL, $customPath = NULL, $lang = 'ru' ) {
 		$this->_lang = $lang;
 
 		$currDate = new DateTime();
-		if ($date === null || $date > $currDate) {
+		if ($date === NULL || $date > $currDate) {
 			$date = $currDate;
 		}
-		
+
 		$this->_date = $date;
-		
-		$this->load();
+
+		$this->_load($customPath);
 	}
 
 	/**
@@ -57,7 +53,7 @@ class Curs {
 	 *
 	 * @return float
 	 */
-	public static function exchange( $currencyFromCode, $quantity, $currencyToCode = null ) {
+	public static function exchange( $currencyFromCode, $quantity, $currencyToCode = NULL ) {
 		$obj = new self();
 
 		return $obj->_exchange( $currencyFromCode, $quantity, $currencyToCode );
@@ -72,7 +68,7 @@ class Curs {
 	 *
 	 * @return float
 	 */
-	protected function _exchange( $currencyFromCode, $quantity, $currencyToCode = null ) {
+	protected function _exchange( $currencyFromCode, $quantity, $currencyToCode = NULL ) {
 		$fromQuantity = strtolower( $currencyFromCode ) == 'mdl' ? $quantity : $this->getRate( $currencyFromCode )->exchangeFrom( $quantity );
 		if ( empty( $currencyToCode ) || strtolower( $currencyToCode ) == 'mdl' ) {
 			return $fromQuantity;
@@ -85,32 +81,27 @@ class Curs {
 	/**
 	 * Creating folder where we save XML file. Save XML currency array to object currency array
 	 *
-	 * @param bool $reload
+	 * @param string $customPath
 	 *
 	 * @throws BnmException
 	 */
-	public function load( $reload = false ) {
-		$this->_folder = trim( $this->_folder, '/' );
-		$dir           = dirname( __FILE__ ) . '/' . $this->_folder;
-		$source        = $dir . '/' . $this->_date->format( 'Y-m-d' ) . '.xml';
+	protected function _load( $customPath ) {
+		$dir    = (is_null($customPath) ? dirname( __FILE__ ) : $customPath) . '/files/';
+		$source = $dir . '/' . $this->_date->format( 'Y-m-d' ) . '.xml';
 		if ( ! is_dir( $dir ) ) {
 			if ( ! mkdir( $dir, 0755 ) ) {
 				throw new BnmException( 'Cant create directory for files' );
 			}
 		}
 
-		if ( ! file_exists( $source ) || $reload ) {
-			$xml = $this->saveRates( $source, $this->_date );
-		} else {
-			$xml = simplexml_load_file( $source );
-		}
+		$xml = file_exists( $source ) ? simplexml_load_file( $source ) : $this->saveRates( $source, $this->_date );
 
 		if ( ! isset( $xml, $xml->Valute ) ) {
 			throw new BnmException( 'Error loading' );
 		}
 
 		foreach ( $xml->Valute as $row ) {
-			$bnmRate                                                          = new Rate( $row );
+			$bnmRate = new Rate( $row );
 			$this->_ratesObjectArray[ strtolower( $bnmRate->getCharCode() ) ] = $bnmRate;
 		}
 	}
@@ -141,6 +132,9 @@ class Curs {
 	 * @throws BnmException
 	 */
 	private function loadRates( DateTime $date ) {
+		/**
+		 * @var \GuzzleHttp\Client $client
+		 */
 		$client = new Client();
 		/**
 		 * @var \GuzzleHttp\Message\Response $result
@@ -148,15 +142,15 @@ class Curs {
 		$result = $client->get( 'http://www.bnm.md/' . $this->_lang . '/official_exchange_rates', [
 			'query' => [ 'get_xml' => '1', 'date' => $date->format( 'd.m.Y' ) ]
 		] );
-		if ( $result->getStatusCode() == 200 ) {
-			try {
-				return $result->xml();
-			}
-			catch ( BnmException $e ) {
-				throw new BnmException( 'Error loading xml' );
-			}
+		if ( $result->getStatusCode() !== 200 ) {
+			throw new BnmException( 'Error loading.', $result->getStatusCode() );
 		}
-		throw new BnmException( 'Error loading. Code: '. $result->getStatusCode() );
+		try {
+			return $result->xml();
+		}
+		catch ( Exception $e ) {
+			throw new BnmException( 'Error loading xml' , $e->getCode());
+		}
 	}
 
 	/**
