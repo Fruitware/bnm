@@ -39,16 +39,12 @@ class Curs {
 		$this->_lang = $lang;
 
 		$currDate = new DateTime();
-		if ( ! isset( $date ) ) {
-			$this->_date = $currDate;
-		} else if ( $date instanceof DateTime ) {
-			if ( $currDate < $date ) {
-				throw new BnmException( 'Max date must be current date' );
-			}
-			$this->_date = $date;
-		} else {
-			throw new BnmException( 'Date has an invalid format' );
+		if ($date === null || $date > $currDate) {
+			$date = $currDate;
 		}
+		
+		$this->_date = $date;
+		
 		$this->load();
 	}
 
