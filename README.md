@@ -15,6 +15,12 @@ Better documentation coming soon.
 Fruitware\Bnm\Curs::exchange('eur', 1, 'mdl')
 ```
 
+## Installation
+
+### Composer
+
+Run the composer command: ```composer require fruitware/bnm```
+
 ## License
 
 The MIT License (MIT)
