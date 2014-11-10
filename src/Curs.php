@@ -8,6 +8,11 @@ use Fruitware\Bnm\Exception\BnmException;
 
 class Curs {
 	/**
+	 * Default currency
+	 */ 
+	const CURRENCY = 'mdl';
+	
+	/**
 	 * @var DateTime Date of exchange rate
 	 */
 	private $_date;
@@ -73,8 +78,8 @@ class Curs {
 	 * @return float
 	 */
 	protected function _exchange( $currencyFromCode, $quantity, $currencyToCode = null ) {
-		$fromQuantity = strtolower( $currencyFromCode ) == 'mdl' ? $quantity : $this->getRate( $currencyFromCode )->exchangeFrom( $quantity );
-		if ( empty( $currencyToCode ) || strtolower( $currencyToCode ) == 'mdl' ) {
+		$fromQuantity = strtolower( $currencyFromCode ) == self::CURRENCY ? $quantity : $this->getRate( $currencyFromCode )->exchangeFrom( $quantity );
+		if ( empty( $currencyToCode ) || strtolower( $currencyToCode ) == self::CURRENCY ) {
 			return $fromQuantity;
 		}
 
