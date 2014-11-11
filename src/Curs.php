@@ -2,175 +2,172 @@
 
 namespace Fruitware\Bnm;
 
-use DateTime;
-use GuzzleHttp\Client;
 use Fruitware\Bnm\Exception\BnmException;
 
 class Curs
 {
     /**
-	 * @var DateTime Date of exchange rate
-	 */
-    private $_date;
+     * @var string
+     */
+    const CURRENCY = 'MDL';
 
     /**
-	 * @var string
+	 * @var \DateTime Date of exchange rate
 	 */
-    private $_lang;
+    protected $_date;
 
     /**
-	 * @var string Rate array
+	 * @var string Language
 	 */
-    private $_ratesObjectArray = [];
+    protected $_lang;
+
+    /**
+	 * @var Rate[]
+	 */
+    protected $_rates = array();
 
     /**
 	 * Load XML file with exchange rates by date from http://www.bnm.md/
 	 *
-	 * @param DateTime $date
-	 * @param string null $customPath
+	 * @param \DateTime $date
+	 * @param string null $cachePath
 	 * @param string $lang
 	 *
 	 * @throws Exception\BnmException
 	 */
-    public function __construct(DateTime $date = null, $customPath = null, $lang = 'ru')
+    public function __construct(\DateTime $date = null, $cachePath = null, $lang = 'ru')
     {
         $this->_lang = $lang;
+        $this->cachePath = $cachePath;
 
         if ($date === null) {
-            $date = new DateTime();
+            $date = new \DateTime();
         }
 
         $this->_date = $date;
 
-        $this->_load($customPath);
+        $this->_load($cachePath);
     }
 
     /**
-	 * Converts one currency to another withing current rate
-	 *
-	 * @param $currencyFromCode
-	 * @param $quantity
-	 * @param null $currencyToCode
-	 *
-	 * @return float
-	 */
-    public static function exchange($currencyFromCode, $quantity, $currencyToCode = null)
+     * Get concrete exchange rate by char code
+     *
+     * @param string $currencyCode
+     *
+     * @return Rate
+     * @throws BnmException
+     */
+    public static function getRate($currencyCode)
     {
-        $obj = new self();
+        $self = new static();
 
-        return $obj->_exchange($currencyFromCode, $quantity, $currencyToCode);
-    }
-
-    /**
-	 * Converts one currency to another withing current rate
-	 *
-	 * @param $currencyFromCode
-	 * @param $quantity
-	 * @param null $currencyToCode
-	 *
-	 * @return float
-	 */
-    protected function _exchange($currencyFromCode, $quantity, $currencyToCode = null)
-    {
-        $fromQuantity = strtolower($currencyFromCode) == 'mdl' ? $quantity : $this->getRate($currencyFromCode)->exchangeFrom($quantity);
-        if (empty($currencyToCode) || strtolower($currencyToCode) == 'mdl') {
-            return $fromQuantity;
-        }
-
-        return $this->getRate($currencyToCode)->exchangeTo($fromQuantity);
-
-    }
-
-    /**
-	 * Creating folder where we save XML file. Save XML currency array to object currency array
-	 *
-	 * @param string $customPath
-	 *
-	 * @throws BnmException
-	 */
-    protected function _load($customPath)
-    {
-        $dir    = (is_null($customPath) ? dirname(__FILE__) : $customPath) . '/files/';
-        $source = $dir . '/' . $this->_date->format('Y-m-d') . '.xml';
-        if (!is_dir($dir)) {
-            if (!mkdir($dir, 0755)) {
-                throw new BnmException('Cant create directory for files');
-            }
-        }
-
-        $xml = file_exists($source) ? simplexml_load_file($source) : $this->saveRates($source, $this->_date);
-
-        if (!isset($xml, $xml->Valute)) {
-            throw new BnmException('Error loading');
-        }
-
-        foreach ($xml->Valute as $row) {
-            $bnmRate = new Rate($row);
-            $this->_ratesObjectArray[ strtolower($bnmRate->getCharCode()) ] = $bnmRate;
-        }
-    }
-
-    /**
-	 * Get concrete exchange rate by char code
-	 *
-	 * @param string $currCode
-	 *
-	 * @return Rate
-	 * @throws BnmException
-	 */
-    public function getRate($currCode)
-    {
-        $currCode = strtolower($currCode);
-        if (isset($this->_ratesObjectArray[ $currCode ])) {
-            return $this->_ratesObjectArray[ $currCode ];
+        $currencyCode = strtoupper($currencyCode);
+        if (isset($self->_rates[$currencyCode])) {
+            return $self->_rates[$currencyCode];
         }
 
         throw new BnmException('Such currency does not exist');
     }
 
     /**
+	 * Converts one currency to another withing current rate
+	 *
+	 * @param string $fromCurrencyCode
+	 * @param float $quantity
+	 * @param string $toCurrencyCode
+	 *
+	 * return float
+	 */
+    public static function exchange($fromCurrencyCode, $quantity, $toCurrencyCode = null)
+    {
+        $self = new static();
+
+        return $self->_exchange($fromCurrencyCode, $quantity, $toCurrencyCode);
+    }
+
+    /**
+	 * Converts one currency to another withing current rate
+	 *
+	 * @param string $fromCurrencyCode
+	 * @param float $quantity
+	 * @param string $toCurrencyCode
+	 *
+	 * @return float
+	 */
+    protected function _exchange($fromCurrencyCode, $quantity, $toCurrencyCode = null)
+    {
+        $fromQuantity = strtoupper($fromCurrencyCode) == static::CURRENCY ? $quantity : $this->getRate($fromCurrencyCode)->exchangeFrom($quantity);
+        if (empty($toCurrencyCode) || strtoupper($toCurrencyCode) == static::CURRENCY) {
+            return $fromQuantity;
+        }
+
+        return $this->getRate($toCurrencyCode)->exchangeTo($fromQuantity);
+    }
+
+    /**
+	 * Creating folder where we save XML file. Save XML currency array to object currency array
+     *
+	 * @throws BnmException
+	 */
+    protected function _load()
+    {
+        $dir = is_null($this->cachePath) ? dirname(__FILE__).'/files' : $this->cachePath;
+        $dir = rtrim($dir, '/').'/'.$this->_lang;
+        $file = $dir.'/'.$this->_date->format('Y-m-d').'.xml';
+        if (!is_dir($dir)) {
+            if (!mkdir($dir, 0755)) {
+                throw new BnmException(sprintf('Cant create directory %s', $dir));
+            }
+        }
+
+        $xml = file_exists($file) ? simplexml_load_file($file) : $this->_saveRates($file, $this->_date);
+
+        if (!isset($xml, $xml->Valute)) {
+            throw new BnmException(sprintf('Error loading exchange for %s date', $this->_date->format('Y-m-d')));
+        }
+
+        foreach ($xml->Valute as $xmlRate) {
+            $rate = new Rate($xmlRate);
+            $this->_rates[strtoupper($rate->getCharCode())] = $rate;
+        }
+    }
+
+    /**
 	 * Load XML file
 	 *
-	 * @param DateTime $date
+	 * @param \DateTime $date
 	 *
 	 * @return \SimpleXMLElement
 	 * @throws BnmException
 	 */
-    private function loadRates(DateTime $date)
+    protected function _loadRates(\DateTime $date)
     {
-        /**
-		 * @var \GuzzleHttp\Client $client
-		 */
-        $client = new Client();
-        /**
-		 * @var \GuzzleHttp\Message\Response $result
-		 */
-        $result = $client->get('http://www.bnm.md/' . $this->_lang . '/official_exchange_rates', [
-            'query' => [ 'get_xml' => '1', 'date' => $date->format('d.m.Y') ]
-        ]);
-        if ($result->getStatusCode() !== 200) {
-            throw new BnmException('Error loading.', $result->getStatusCode());
+        $xml = @file_get_contents(sprintf('http://www.bnm.md/%s/official_exchange_rates?get_xml=1&date=%s', $this->_lang, $date->format('d.m.Y')));
+
+        if (!$xml) {
+            throw new BnmException('Error curs loading.');
         }
+
         try {
-            return $result->xml();
+            return new \SimpleXMLElement($xml);
         } catch (\Exception $e) {
-            throw new BnmException('Error loading xml' , $e->getCode());
+            throw new BnmException('Error loading xml', $e->getCode());
         }
     }
 
     /**
 	 * Save XML data to XML File
 	 *
-	 * @param string $filename
-	 * @param DateTime $date
+	 * @param string $file
+	 * @param \DateTime $date
 	 *
 	 * @return \SimpleXMLElement
 	 * @throws BnmException
 	 */
-    private function saveRates($filename, DateTime $date)
+    protected function _saveRates($file, \DateTime $date)
     {
-        $ratesXmlArray = $this->loadRates($date);
-        if ($ratesXmlArray->asXML($filename)) {
+        $ratesXmlArray = $this->_loadRates($date);
+        if ($ratesXmlArray->asXML($file)) {
             return $ratesXmlArray;
         }
 

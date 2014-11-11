@@ -1,6 +1,6 @@
 {
     "name": "fruitware/bnm",
-    "type": "library",
+    "type": "service",
 	"description": "Is a PHP library for bnm.md xml service",
 	"keywords": ["bnm", "bnm.md", "xml api"],
 	"homepage": "http://fruitware.ru/",
@@ -18,8 +18,7 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0",
-        "guzzlehttp/guzzle": "~4.0"
+        "php": ">=5.3.0"
     },
     "require-dev": {
         "fabpot/php-cs-fixer":"0.5.*"
@@ -28,5 +27,6 @@
 		"psr-4": {
 			"Fruitware\\Bnm\\": "src/"
 		}
-	}
+	},
+    "minimum-stability": "dev"
 }

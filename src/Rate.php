@@ -73,7 +73,7 @@ class Rate
     /**
 	 * Convert MDL to current currency
 	 *
-	 * @param $quantity string
+	 * @param float $quantity
 	 *
 	 * @return float
 	 */
@@ -82,15 +82,13 @@ class Rate
         $rate    = $this->getValue();
         $nominal = $this->getNominal();
 
-        $result = (double) ($quantity / $nominal / $rate);
-
-        return $result;
+        return (double) ($quantity / $nominal / $rate);
     }
 
     /**
 	 * Convert current currency to MDL
 	 *
-	 * @param $quantity string
+	 * @param float $quantity
 	 *
 	 * @return float
 	 */
@@ -99,8 +97,6 @@ class Rate
         $rate    = $this->getValue();
         $nominal = $this->getNominal();
 
-        $result = (double) ($quantity * $rate / $nominal);
-
-        return $result;
+        return (double) ($quantity * $rate / $nominal);
     }
 }
