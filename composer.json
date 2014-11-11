@@ -5,20 +5,25 @@
 	"keywords": ["bnm", "bnm.md", "xml api"],
 	"homepage": "http://fruitware.ru/",
     "license": "MIT",
-
     "authors": [
+        {
+            "name": "Coroliov Oleg",
+            "email": "ruscon@gmail.com",
+            "homepage": "https://github.com/ruscon"
+        },
         {
             "name": "Vladimir Scegoli",
             "email": "marxx87@gmail.com",
             "homepage": "https://github.com/sillywiz"
         }
     ],
-
     "require": {
         "php": ">=5.4.0",
         "guzzlehttp/guzzle": "~4.0"
     },
-
+    "require-dev": {
+        "fabpot/php-cs-fixer":"0.5.*"
+    },
 	"autoload": {
 		"psr-4": {
 			"Fruitware\\Bnm\\": "src/"
