@@ -36,9 +36,8 @@ class Curs
     {
         $this->_lang = $lang;
 
-        $currDate = new DateTime();
-        if ($date === null || $date > $currDate) {
-            $date = $currDate;
+        if ($date === null) {
+            $date = new DateTime();
         }
 
         $this->_date = $date;
