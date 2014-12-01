@@ -27,10 +27,22 @@ class Curs
     protected $_rates = array();
 
     /**
+     * @param \DateTime $date
+     * @param string $cachePath
+     * @param string $lang
+     *
+     * @return Curs
+     */
+    public static function init(\DateTime $date = null, $cachePath = null, $lang = 'ru')
+    {
+        return new static($date, $cachePath, $lang);
+    }
+
+    /**
 	 * Load XML file with exchange rates by date from http://www.bnm.md/
 	 *
 	 * @param \DateTime $date
-	 * @param string null $cachePath
+	 * @param string $cachePath
 	 * @param string $lang
 	 *
 	 * @throws Exception\BnmException
