@@ -35,7 +35,13 @@ class Curs
      */
     public static function init(\DateTime $date = null, $cachePath = null, $lang = 'ru')
     {
-        return new static($date, $cachePath, $lang);
+        static $self;
+
+        if (!$self instanceof Curs) {
+            $self = new static($date, $cachePath, $lang);
+        }
+
+        return $self;
     }
 
     /**
@@ -47,7 +53,7 @@ class Curs
 	 *
 	 * @throws Exception\BnmException
 	 */
-    public function __construct(\DateTime $date = null, $cachePath = null, $lang = 'ru')
+    protected function __construct(\DateTime $date = null, $cachePath = null, $lang = 'ru')
     {
         $this->_lang = $lang;
         $this->cachePath = $cachePath;
@@ -71,7 +77,7 @@ class Curs
      */
     public static function getRate($currencyCode)
     {
-        $self = new static();
+        $self = static::init();
 
         $currencyCode = strtoupper($currencyCode);
         if (isset($self->_rates[$currencyCode])) {
@@ -82,17 +88,17 @@ class Curs
     }
 
     /**
-	 * Converts one currency to another withing current rate
-	 *
-	 * @param string $fromCurrencyCode
-	 * @param float $quantity
-	 * @param string $toCurrencyCode
-	 *
-	 * return float
-	 */
+     * Converts one currency to another withing current rate
+     *
+     * @param string $fromCurrencyCode
+     * @param float  $quantity
+     * @param string $toCurrencyCode
+     *
+     * @return float
+     */
     public static function exchange($fromCurrencyCode, $quantity, $toCurrencyCode = null)
     {
-        $self = new static();
+        $self = static::init();
 
         return $self->_exchange($fromCurrencyCode, $quantity, $toCurrencyCode);
     }
