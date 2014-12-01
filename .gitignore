@@ -10,3 +10,5 @@ docs/*.pyc
 .idea
 .DS_STORE
 /files
+/examples/cache/*
+!.gitkeep
