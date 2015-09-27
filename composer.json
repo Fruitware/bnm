@@ -1,6 +1,6 @@
 {
     "name": "fruitware/bnm",
-    "type": "service",
+    "type": "library",
 	"description": "Is a PHP library for bnm.md xml service",
 	"keywords": ["bnm", "bnm.md", "xml api"],
 	"homepage": "http://fruitware.ru/",
@@ -10,18 +10,10 @@
             "name": "Coroliov Oleg",
             "email": "ruscon@gmail.com",
             "homepage": "https://github.com/ruscon"
-        },
-        {
-            "name": "Vladimir Scegoli",
-            "email": "marxx87@gmail.com",
-            "homepage": "https://github.com/sillywiz"
         }
     ],
     "require": {
         "php": ">=5.3.0"
-    },
-    "require-dev": {
-        "fabpot/php-cs-fixer":"0.5.*"
     },
 	"autoload": {
 		"psr-4": {

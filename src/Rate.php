@@ -2,24 +2,19 @@
 
 namespace Fruitware\Bnm;
 
-/**
- * Concrete exchange object
- * Class BnmRate
- * @package Fruitware\Bnm
- */
 class Rate
 {
     /**
 	 * @var \SimpleXMLElement
 	 */
-    private $_node;
+    protected $node;
 
     /**
 	 * @param \SimpleXMLElement $node
 	 */
     public function __construct(\SimpleXMLElement $node)
     {
-        $this->_node = $node;
+        $this->node = $node;
     }
 
     /**
@@ -27,7 +22,7 @@ class Rate
 	 */
     public function getId()
     {
-        return (int) $this->_node['ID'];
+        return (int) $this->node['ID'];
     }
 
     /**
@@ -35,7 +30,7 @@ class Rate
 	 */
     public function getNumCode()
     {
-        return (int) $this->_node->NumCode;
+        return (int) $this->node->NumCode;
     }
 
     /**
@@ -43,7 +38,7 @@ class Rate
 	 */
     public function getCharCode()
     {
-        return (string) $this->_node->CharCode;
+        return (string) $this->node->CharCode;
     }
 
     /**
@@ -51,7 +46,7 @@ class Rate
 	 */
     public function getNominal()
     {
-        return (int) $this->_node->Nominal;
+        return (int) $this->node->Nominal;
     }
 
     /**
@@ -59,7 +54,7 @@ class Rate
 	 */
     public function getName()
     {
-        return (string) $this->_node->Name;
+        return (string) $this->node->Name;
     }
 
     /**
@@ -67,7 +62,7 @@ class Rate
 	 */
     public function getValue()
     {
-        return (double) $this->_node->Value;
+        return (double) $this->node->Value;
     }
 
     /**

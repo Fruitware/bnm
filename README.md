@@ -1,26 +1,29 @@
-# BNM
-* Contributors: [Vladimir Scegoli](https://github.com/sillywiz), [Oleg Coroliov](https://github.com/ruscon), [Serge Beresnev](https://github.com/keriat), [Ruslan Balabanov](https://github.com/RWDeV),  [contributors](https://github.com/fruitware/bnm/graphs/contributors)
-* Stable tag: master
+##BNM converter
 
-#BNM converter
+Library uses National Bank of Moldova official gate to get currency rate within given date.
 
-<http://www.fruitware.ru/>
+## Installation via Composer
 
-Library uses National Bank of Moldova data to get currency rate withing given date and use it in any web-app.
-Library is Composer-ready.
+```composer require "fruitware/bnm" : "2.*"```
 
 ## Examples
-
-Better documentation coming soon.
 
 ## Basic usage with current date
 
 ```php
-Fruitware\Bnm\Curs::exchange('eur', 1, 'mdl')
+// init client
+$cacheDir = '/tmp/bnm'; // not required
+$client = new \Fruitware\Bnm\Client($cacheDir);
+
+// get rates on a specific date
+$rates = $client->get(new DateTime());
+
+// exchange 100 USD to MDL
+$exchange = $rates->exchange('USD', 100, 'MDL');
+
+// exchange 1000000 MDL to USD
+$exchange = $rates->exchange('MDL', 1000000, 'USD');
+
+// exchange 50000 EUR to MDL
+$exchange = $rates->exchange('EUR', 50000, 'MDL');
 ```
-
-## Installation
-
-### Composer
-
-Run the composer command: ```composer require fruitware/bnm```
