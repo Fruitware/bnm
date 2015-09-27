@@ -133,7 +133,7 @@ class Curs
         $dir = rtrim($dir, '/').'/'.$this->_lang;
         $file = $dir.'/'.$this->_date->format('Y-m-d').'.xml';
         if (!is_dir($dir)) {
-            if (!mkdir($dir, 0755)) {
+            if (!mkdir($dir, 0755, true)) {
                 throw new BnmException(sprintf('Cant create directory %s', $dir));
             }
         }
